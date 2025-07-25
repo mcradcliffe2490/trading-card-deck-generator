@@ -2,6 +2,13 @@
 
 This guide covers deploying the Trading Card Game Deck Generator to various hosting platforms.
 
+## 🔧 Build Process Fixed
+
+The build process has been updated to work correctly on deployment platforms:
+- Moved TypeScript and Vite to production dependencies 
+- Simplified build command to just `vite build`
+- Added postinstall script for server dependencies
+
 ## Quick Deploy Options
 
 ### Option 1: Railway (Recommended - Full Stack)
