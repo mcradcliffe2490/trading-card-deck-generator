@@ -7,7 +7,8 @@ This guide covers deploying the Trading Card Game Deck Generator to various host
 The build process has been updated to work correctly on deployment platforms:
 - Moved TypeScript and Vite to production dependencies 
 - Simplified build command to just `vite build`
-- Added postinstall script for server dependencies
+- Created separate build configs for different platforms
+- Added nixpacks.toml for Railway optimization
 
 ## Quick Deploy Options
 
@@ -15,12 +16,15 @@ The build process has been updated to work correctly on deployment platforms:
 Railway can host both frontend and backend together:
 
 1. Connect your GitHub repo to Railway
-2. Set environment variables:
+2. Railway will detect the nixpacks.toml and build accordingly
+3. Set environment variables:
    - `ANTHROPIC_API_KEY`: Your Claude API key
-   - `NODE_ENV`: `production`
    - `VITE_APP_PASSWORD`: Your app access password
    - `VITE_API_URL`: Your Railway app URL (e.g., `https://your-app.railway.app`)
-3. Deploy automatically triggers
+   - `NODE_ENV`: `production`
+4. Deploy automatically triggers
+
+**Note**: Railway will build the frontend, then start the backend server which serves the static files.
 
 ### Option 2: Vercel (Frontend) + Railway (Backend)
 For separate frontend/backend deployment:

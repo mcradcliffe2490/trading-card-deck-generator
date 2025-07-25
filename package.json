@@ -11,7 +11,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "server": "cd server && npm run dev",
     "start": "concurrently \"npm run server\" \"npm run dev\"",
-    "postinstall": "cd server && npm install"
+    "postinstall": "echo 'Frontend install complete'"
   },
   "dependencies": {
     "react": "^18.2.0",
