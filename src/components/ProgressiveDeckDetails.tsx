@@ -65,11 +65,12 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
     artifacts: true
   })
   const [data, setData] = useState<DeckData>({})
-  const [error, setError] = useState<string | null>(null)
   const [previewCard, setPreviewCard] = useState<DeckCard | null>(null)
   const [previewPosition, setPreviewPosition] = useState({ x: 0, y: 0 })
   const [showPreview, setShowPreview] = useState(false)
   const { handleApiError } = useToast()
+  
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
   useEffect(() => {
     fetchAllData()
@@ -99,13 +100,12 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
       }
     } catch (error) {
       console.error('Error fetching deck data:', error)
-      setError('Failed to load deck details')
     }
   }
 
   const fetchStrategy = async () => {
     try {
-      const response = await fetch('/api/deck-strategy', {
+      const response = await fetch(`${apiUrl}/api/deck-strategy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -113,7 +113,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        const error = new Error(errorData.error || 'Failed to fetch strategy')
+        const error = new Error(errorData.error || 'Failed to fetch strategy') as Error & { status: number }
         error.status = response.status
         throw error
       }
@@ -130,7 +130,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchManabase = async () => {
     try {
-      const response = await fetch('/api/deck-manabase', {
+      const response = await fetch(`${apiUrl}/api/deck-manabase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -149,7 +149,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchCreatures = async () => {
     try {
-      const response = await fetch('/api/deck-spells/creatures', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/creatures`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -168,7 +168,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchSpells = async () => {
     try {
-      const response = await fetch('/api/deck-spells/instants-sorceries', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/instants-sorceries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -187,7 +187,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchArtifacts = async () => {
     try {
-      const response = await fetch('/api/deck-spells/artifacts-enchantments', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/artifacts-enchantments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -207,7 +207,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
   // MTG micro-chunk fetch functions
   const fetchEarlyCreatures = async () => {
     try {
-      const response = await fetch('/api/deck-spells/early-creatures', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/early-creatures`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -215,7 +215,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        const error = new Error(errorData.error || 'Failed to generate early creatures')
+        const error = new Error(errorData.error || 'Failed to generate early creatures') as Error & { status: number }
         error.status = response.status
         throw error
       }
@@ -232,7 +232,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchMidCreatures = async () => {
     try {
-      const response = await fetch('/api/deck-spells/mid-creatures', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/mid-creatures`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -251,7 +251,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchLateCreatures = async () => {
     try {
-      const response = await fetch('/api/deck-spells/late-creatures', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/late-creatures`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -270,7 +270,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchRampDraw = async () => {
     try {
-      const response = await fetch('/api/deck-spells/ramp-draw', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/ramp-draw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -289,7 +289,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchRemovalInteraction = async () => {
     try {
-      const response = await fetch('/api/deck-spells/removal-interaction', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/removal-interaction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -308,7 +308,7 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
 
   const fetchWinConsArtifacts = async () => {
     try {
-      const response = await fetch('/api/deck-spells/win-cons-artifacts', {
+      const response = await fetch(`${apiUrl}/api/deck-spells/win-cons-artifacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deckSummary: deck }),
@@ -348,9 +348,6 @@ const ProgressiveDeckDetails: React.FC<ProgressiveDeckDetailsProps> = ({ deck })
     return total
   }
 
-  const getExpectedDeckSize = () => {
-    return deck.game === 'gundam' ? 50 : 99
-  }
 
   const getExpectedTotalCards = () => {
     if (deck.game === 'gundam') {

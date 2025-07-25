@@ -121,7 +121,7 @@ const DeckCard: React.FC<DeckCardProps> = ({ deck }) => {
       <div className="deck-card-summary" onClick={handleCardClick}>
         <h3>{deck.name}</h3>
         <p><strong>Commander:</strong> {deck.commander}</p>
-        <p><strong>Colors:</strong> {deck.colors.join(', ')}</p>
+        <p><strong>Colors:</strong> {deck.colors?.join(', ') || 'Not specified'}</p>
         <p><strong>Power Level:</strong> {deck.powerLevel}/10</p>
         <p><strong>Estimated Cost:</strong> {formatCost(deck.estimatedCost)}</p>
         <p><strong>Strategy:</strong> {deck.strategy}</p>

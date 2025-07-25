@@ -60,7 +60,7 @@ const DeckDetails: React.FC<DeckDetailsProps> = ({ deck }) => {
               <h4>Commander</h4>
               <div className="card-item commander-card">
                 <img 
-                  src={getCardImage(deck.commander)}
+                  src={getCardImage(deck.commander!)}
                   alt={deck.commander}
                   className="card-image"
                   onError={(e) => {

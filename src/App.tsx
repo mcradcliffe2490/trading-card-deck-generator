@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import GameSelection from './components/GameSelection'
 import DeckForm from './components/DeckForm'
 import DeckSuggestions from './components/DeckSuggestions'
@@ -21,7 +21,8 @@ function App() {
     setLoading(true)
     
     try {
-      const response = await fetch('/api/generate-decks', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      const response = await fetch(`${apiUrl}/api/generate-decks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,7 +32,7 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        const error = new Error(errorData.error || 'Failed to generate deck suggestions')
+        const error = new Error(errorData.error || 'Failed to generate deck suggestions') as Error & { status: number }
         error.status = response.status
         throw error
       }

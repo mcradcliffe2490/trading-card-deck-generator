@@ -1,0 +1,26 @@
+{
+  "name": "tcg-deck-generator",
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_APP_PASSWORD": "@tcg_app_password",
+    "VITE_API_URL": "@tcg_api_url"
+  },
+  "functions": {
+    "server/server.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

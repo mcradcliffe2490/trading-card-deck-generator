@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
+const path = require('path')
 const Anthropic = require('@anthropic-ai/sdk')
 
 dotenv.config()
@@ -10,6 +11,11 @@ const PORT = process.env.PORT || 3001
 
 app.use(cors())
 app.use(express.json())
+
+// Serve static files from the React app build directory (for production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')))
+}
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -526,6 +532,13 @@ app.post('/api/deck-spells/:section', async (req, res) => {
     res.status(statusCode).json({ error: errorMessage })
   }
 })
+
+// Catch-all handler: send back React's index.html file for production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'))
+  })
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
