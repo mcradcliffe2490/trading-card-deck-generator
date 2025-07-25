@@ -16,15 +16,21 @@ The build process has been updated to work correctly on deployment platforms:
 Railway can host both frontend and backend together:
 
 1. Connect your GitHub repo to Railway
-2. Railway will detect the nixpacks.toml and build accordingly
-3. Set environment variables:
+2. Set environment variables:
    - `ANTHROPIC_API_KEY`: Your Claude API key
    - `VITE_APP_PASSWORD`: Your app access password
    - `VITE_API_URL`: Your Railway app URL (e.g., `https://your-app.railway.app`)
    - `NODE_ENV`: `production`
-4. Deploy automatically triggers
+3. Deploy automatically triggers
 
-**Note**: Railway will build the frontend, then start the backend server which serves the static files.
+**Build Process**: Railway will use `nixpacks.toml` to:
+- Install frontend dependencies
+- Install server dependencies  
+- Build frontend (`npm run build`)
+- Copy built files to server/public/
+- Start the server
+
+**Troubleshooting**: If nixpacks fails, Railway should fall back to the `Procfile` which runs everything in sequence.
 
 ### Option 2: Vercel (Frontend) + Railway (Backend)
 For separate frontend/backend deployment:
@@ -98,9 +104,39 @@ npm run preview
 cd server && npm start
 ```
 
+## Manual Deployment (Alternative)
+
+If automated deployment fails, you can deploy manually:
+
+```bash
+# 1. Build and prepare
+./deploy.sh
+
+# 2. Start the server
+cd server && npm start
+```
+
+Or step by step:
+```bash
+# Build frontend
+npm run build
+
+# Install server dependencies
+cd server && npm install --only=production
+
+# Copy frontend files
+mkdir -p public
+cp -r ../dist/* public/
+
+# Start server
+npm start
+```
+
 ## Troubleshooting
 
 - If API calls fail, check the VITE_API_URL environment variable
 - For CORS issues, ensure the backend allows your frontend domain
 - Password issues: verify VITE_APP_PASSWORD is set correctly
 - API credit errors: check your Anthropic account balance
+- **"Missing script: build" error**: This happens when Railway tries to run build in the server directory. The nixpacks.toml should prevent this.
+- **Files not found**: The server now checks multiple locations for static files and will log where it found them.

@@ -14,7 +14,24 @@ app.use(express.json())
 
 // Serve static files from the React app build directory (for production)
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')))
+  // Try multiple possible locations for the built files
+  const possiblePaths = [
+    path.join(__dirname, '../dist'),     // Local development
+    path.join(__dirname, 'public'),      // Copied during deployment
+    path.join(__dirname, '../../dist')   // Some deployment scenarios
+  ]
+  
+  for (const staticPath of possiblePaths) {
+    try {
+      if (require('fs').existsSync(staticPath)) {
+        app.use(express.static(staticPath))
+        console.log(`Serving static files from: ${staticPath}`)
+        break
+      }
+    } catch (e) {
+      // Continue to next path
+    }
+  }
 }
 
 const anthropic = new Anthropic({
@@ -536,7 +553,25 @@ app.post('/api/deck-spells/:section', async (req, res) => {
 // Catch-all handler: send back React's index.html file for production
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'))
+    // Try multiple possible locations for index.html
+    const possibleIndexPaths = [
+      path.join(__dirname, '../dist/index.html'),
+      path.join(__dirname, 'public/index.html'),
+      path.join(__dirname, '../../dist/index.html')
+    ]
+    
+    for (const indexPath of possibleIndexPaths) {
+      try {
+        if (require('fs').existsSync(indexPath)) {
+          return res.sendFile(indexPath)
+        }
+      } catch (e) {
+        // Continue to next path
+      }
+    }
+    
+    // Fallback
+    res.status(404).send('Frontend files not found')
   })
 }
 
