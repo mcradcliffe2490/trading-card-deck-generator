@@ -1,5 +1,5 @@
 {
-  "name": "tcg-deck-generator",
+  "name": "tcg-deck-generator-frontend",
   "version": 2,
   "builds": [
     {
@@ -10,10 +10,6 @@
       }
     }
   ],
-  "env": {
-    "VITE_APP_PASSWORD": "@tcg_app_password",
-    "VITE_API_URL": "@tcg_api_url"
-  },
   "routes": [
     {
       "src": "/(.*)",

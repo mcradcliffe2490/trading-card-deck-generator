@@ -12,27 +12,8 @@ const PORT = process.env.PORT || 3001
 app.use(cors())
 app.use(express.json())
 
-// Serve static files from the React app build directory (for production)
-if (process.env.NODE_ENV === 'production') {
-  // Try multiple possible locations for the built files
-  const possiblePaths = [
-    path.join(__dirname, '../dist'),     // Local development
-    path.join(__dirname, 'public'),      // Copied during deployment
-    path.join(__dirname, '../../dist')   // Some deployment scenarios
-  ]
-  
-  for (const staticPath of possiblePaths) {
-    try {
-      if (require('fs').existsSync(staticPath)) {
-        app.use(express.static(staticPath))
-        console.log(`Serving static files from: ${staticPath}`)
-        break
-      }
-    } catch (e) {
-      // Continue to next path
-    }
-  }
-}
+// Note: Vercel will handle static files separately
+// No static file serving needed for API-only deployment
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -550,31 +531,14 @@ app.post('/api/deck-spells/:section', async (req, res) => {
   }
 })
 
-// Catch-all handler: send back React's index.html file for production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    // Try multiple possible locations for index.html
-    const possibleIndexPaths = [
-      path.join(__dirname, '../dist/index.html'),
-      path.join(__dirname, 'public/index.html'),
-      path.join(__dirname, '../../dist/index.html')
-    ]
-    
-    for (const indexPath of possibleIndexPaths) {
-      try {
-        if (require('fs').existsSync(indexPath)) {
-          return res.sendFile(indexPath)
-        }
-      } catch (e) {
-        // Continue to next path
-      }
-    }
-    
-    // Fallback
-    res.status(404).send('Frontend files not found')
+// API-only server for Vercel - no catch-all needed
+
+// For Vercel serverless, export the app instead of listening
+if (process.env.VERCEL) {
+  module.exports = app
+} else {
+  // Local development
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
   })
 }
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
