@@ -1,142 +1,185 @@
-# TCG Deck Generator - Deployment Guide
+# Trading Card Deck Generator - Vercel Deployment Guide
 
-This guide covers deploying the Trading Card Game Deck Generator to various hosting platforms.
+This guide covers deploying the Trading Card Game Deck Generator to Vercel with separate frontend and backend deployments.
 
-## 🔧 Build Process Fixed
+## 🏗️ Architecture Overview
 
-The build process has been updated to work correctly on deployment platforms:
-- Moved TypeScript and Vite to production dependencies 
-- Simplified build command to just `vite build`
-- Created separate build configs for different platforms
-- Added nixpacks.toml for Railway optimization
+This project uses a separated frontend/backend architecture optimized for Vercel:
+- **Frontend**: React + Vite application deployed to Vercel
+- **Backend**: Node.js Express API deployed as Vercel serverless functions
 
-## Quick Deploy Options
+## Frontend Deployment (Vercel)
 
-### Option 1: Railway (Recommended - Full Stack)
-Railway can host both frontend and backend together:
+### 1. Repository Setup
+1. Connect your GitHub repository to Vercel
+2. Select the root directory (not a subdirectory)
 
-1. Connect your GitHub repo to Railway
-2. Set environment variables:
+### 2. Build Configuration
+Vercel will automatically detect the Vite configuration from `vercel.json`:
+```json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+### 3. Environment Variables
+Set the following environment variables in your Vercel project settings:
+
+```
+VITE_APP_PASSWORD=your_secure_password
+VITE_API_URL=https://your-backend-project.vercel.app
+```
+
+### 4. Deploy
+The frontend will automatically deploy when you push to your main branch.
+
+## Backend Deployment (Vercel Serverless Functions)
+
+### 1. Create Separate Vercel Project
+1. Create a new Vercel project from the same GitHub repository
+2. Set the **Root Directory** to `server/`
+3. This ensures Vercel treats the server folder as the project root
+
+### 2. Serverless Configuration
+The backend uses the `server/vercel.json` configuration:
+```json
+{
+  "name": "tcg-deck-generator-api",
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "env": {
+    "ANTHROPIC_API_KEY": "@anthropic_api_key",
+    "NODE_ENV": "production"
+  }
+}
+```
+
+### 3. Environment Variables
+Set the following environment variables in your backend Vercel project:
+
+```
+ANTHROPIC_API_KEY=your_anthropic_api_key
+NODE_ENV=production
+```
+
+Note: The `@anthropic_api_key` in vercel.json references a Vercel environment variable.
+
+### 4. Deploy
+The backend will deploy automatically when you push changes to the server directory.
+
+## Complete Deployment Steps
+
+### Step 1: Deploy Backend
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "New Project"
+3. Import your GitHub repository
+4. Set **Root Directory** to `server`
+5. Add environment variables:
    - `ANTHROPIC_API_KEY`: Your Claude API key
+   - `NODE_ENV`: `production`
+6. Deploy
+
+### Step 2: Deploy Frontend
+1. Create another new Vercel project
+2. Import the same GitHub repository
+3. Keep **Root Directory** empty (uses root)
+4. Add environment variables:
    - `VITE_APP_PASSWORD`: Your app access password
-   - `VITE_API_URL`: Your Railway app URL (e.g., `https://your-app.railway.app`)
-   - `NODE_ENV`: `production`
-3. Deploy automatically triggers
+   - `VITE_API_URL`: Your backend Vercel URL (from Step 1)
+5. Deploy
 
-**Build Process**: Railway will use `nixpacks.toml` to:
-- Install frontend dependencies
-- Install server dependencies  
-- Build frontend (`npm run build`)
-- Copy built files to server/public/
-- Start the server
+## Local Development
 
-**Troubleshooting**: If nixpacks fails, Railway should fall back to the `Procfile` which runs everything in sequence.
+To test the setup locally:
 
-### Option 2: Vercel (Frontend) + Railway (Backend)
-For separate frontend/backend deployment:
+```bash
+# Install dependencies
+npm install
+cd server && npm install && cd ..
 
-**Backend (Railway):**
-1. Create new Railway project from GitHub
-2. Set root directory to `/server`
-3. Set environment variables:
-   - `ANTHROPIC_API_KEY`: Your Claude API key
-   - `NODE_ENV`: `production`
+# Start development servers
+npm start
+```
 
-**Frontend (Vercel):**
-1. Connect GitHub repo to Vercel
-2. Set environment variables:
-   - `VITE_APP_PASSWORD`: Your app access password  
-   - `VITE_API_URL`: Your Railway backend URL
-
-### Option 3: Netlify (Full Stack with Functions)
-1. Connect GitHub repo to Netlify
-2. Build command: `npm run build`
-3. Publish directory: `dist`
-4. Set environment variables in Netlify dashboard
-
-## Environment Variables
+## Environment Variables Reference
 
 ### Frontend (.env)
 ```
 VITE_APP_PASSWORD=your_secure_password
-VITE_API_URL=https://your-backend-url.com
+VITE_API_URL=https://your-backend-project.vercel.app
 ```
 
 ### Backend (server/.env)
 ```
 ANTHROPIC_API_KEY=your_anthropic_api_key
-PORT=3001
 NODE_ENV=production
-```
-
-## Local Development
-
-1. Install dependencies:
-   ```bash
-   npm install
-   cd server && npm install && cd ..
-   ```
-
-2. Set up environment variables (copy from .env.example)
-
-3. Start development servers:
-   ```bash
-   npm start
-   ```
-
-## Security Notes
-
-- The password protection is client-side and not cryptographically secure
-- For production use, consider implementing server-side authentication
-- Keep your Anthropic API key secure and never commit it to version control
-- Use strong passwords and rotate them regularly
-
-## Building for Production
-
-```bash
-# Build frontend
-npm run build
-
-# Test production build locally
-npm run preview
-
-# Start production server
-cd server && npm start
-```
-
-## Manual Deployment (Alternative)
-
-If automated deployment fails, you can deploy manually:
-
-```bash
-# 1. Build and prepare
-./deploy.sh
-
-# 2. Start the server
-cd server && npm start
-```
-
-Or step by step:
-```bash
-# Build frontend
-npm run build
-
-# Install server dependencies
-cd server && npm install --only=production
-
-# Copy frontend files
-mkdir -p public
-cp -r ../dist/* public/
-
-# Start server
-npm start
 ```
 
 ## Troubleshooting
 
-- If API calls fail, check the VITE_API_URL environment variable
-- For CORS issues, ensure the backend allows your frontend domain
-- Password issues: verify VITE_APP_PASSWORD is set correctly
-- API credit errors: check your Anthropic account balance
-- **"Missing script: build" error**: This happens when Railway tries to run build in the server directory. The nixpacks.toml should prevent this.
-- **Files not found**: The server now checks multiple locations for static files and will log where it found them.
+### Common Issues
+
+**Build Errors:**
+- Ensure all dependencies are in `dependencies` (not `devDependencies`) for production builds
+- Check that TypeScript and Vite are included in dependencies
+
+**API Connection Issues:**
+- Verify `VITE_API_URL` points to your backend Vercel deployment
+- Check CORS configuration in server if requests are blocked
+- Ensure backend environment variables are set correctly
+
+**Password Protection:**
+- Verify `VITE_APP_PASSWORD` is set in frontend environment variables
+- Password protection is client-side only - not cryptographically secure
+
+**API Rate Limits:**
+- Check your Anthropic account balance and usage limits
+- Monitor API key usage in Anthropic dashboard
+
+### Vercel-Specific Issues
+
+**Root Directory Configuration:**
+- Frontend: Leave root directory empty
+- Backend: Set root directory to `server/`
+
+**Function Timeout:**
+- Vercel serverless functions have execution time limits
+- Large deck generations may need optimization
+
+**Environment Variable Access:**
+- Use Vercel dashboard to set environment variables
+- Variables set in `vercel.json` reference Vercel environment variables with `@` prefix
+
+## Security Considerations
+
+- Keep your Anthropic API key secure and never commit it to version control
+- The password protection is client-side only - implement server-side auth for production security
+- Use environment variables for all sensitive configuration
+- Regularly rotate API keys and passwords
+- Monitor your Anthropic API usage for unexpected activity
+
+## Production Optimization
+
+- Enable Vercel Analytics for performance monitoring
+- Use Vercel's built-in caching for static assets
+- Consider implementing request rate limiting
+- Monitor serverless function cold starts and optimize if needed
