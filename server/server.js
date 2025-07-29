@@ -11,6 +11,21 @@ const PORT = process.env.PORT || 3001
 
 app.use(express.json())
 
+// CORS configuration for Vercel deployment
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Local development (Vite)
+    'http://localhost:3000', // Local development (alternative)
+    'https://trading-card-deck-generator-fronten.vercel.app/', // Production frontend
+    /\.vercel\.app$/, // Allow any Vercel preview deployments
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}
+
+app.use(cors(corsOptions))
+
 // Note: Vercel will handle static files separately
 // No static file serving needed for API-only deployment
 
