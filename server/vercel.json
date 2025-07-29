@@ -19,7 +19,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://trading-card-deck-generator-frontend-1lkp3qksu.vercel.app/"
+          "value": "https://trading-card-deck-generator-frontend-1lkp3qksu.vercel.app"
         },
         {
           "key": "Access-Control-Allow-Methods",
