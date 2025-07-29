@@ -16,7 +16,7 @@ const corsOptions = {
   origin: [
     'http://localhost:5173', // Local development (Vite)
     'http://localhost:3000', // Local development (alternative)
-    'https://trading-card-deck-generator-fronten.vercel.app/', // Production frontend
+    'https://trading-card-deck-generator-fronten.vercel.app', // Production frontend (no trailing slash)
     /\.vercel\.app$/, // Allow any Vercel preview deployments
   ],
   credentials: true,
